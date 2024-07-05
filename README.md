@@ -103,7 +103,7 @@ As mentioned at the beginning, **Your unique and innovative idea has a good chan
 
 # ✨ Change Log
 
-- 06/20/2024 Remove keymaps when viewport switched to non-canvas 30 minutes ago shaun*
+- 06/20/2024 Remove keymaps when viewport switched to non-canvas
 - 07/06/2023 Debounce is support when nodes are created by `Enter` or `Tab`
 - 07/05/2023 Fix the first time you enter the editor canvas instance may be undefined
 - 07/04/2023 Fix keyboard F fail to focus the nearest central node in viewport
@@ -130,7 +130,7 @@ If you think the project is lovely and enjoy creation, you can donate it~
 
 > [By Me a Coffee](https://www.buymeacoffee.com/xincan1949)
 
-> 当您通过以下方式进行捐赠时，请务必留下姓名、GitHub 账号或其他社交媒体账号，以便我将其添加到捐赠者名单中，以表谢意。
+> 当您通过以下方式进行捐赠时，请务必留下备注【Lovely-Mindmap】和姓名、GitHub 账号、其他社交媒体账号之一，以便我将其添加到捐赠者名单中，以表谢意。
 
 支付宝
 
@@ -141,3 +141,7 @@ If you think the project is lovely and enjoy creation, you can donate it~
 
 <img alt="WeChatPay" height="200" src="https://cdn.jsdelivr.net/gh/xincan1949/xincan1949.github.io@master/WeChatPay.png" title="123" width="200"/>
 
+
+Thanks for the sponsorship below
+1. *云（微信）
+2. Shiki（微信）
