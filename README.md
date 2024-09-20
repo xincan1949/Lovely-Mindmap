@@ -103,6 +103,7 @@ As mentioned at the beginning, **Your unique and innovative idea has a good chan
 
 # ✨ Change Log
 
+- 09/21/2024 Fix shortcut key conflicts and allow customizable hotkeys
 - 06/20/2024 Remove keymaps when viewport switched to non-canvas
 - 07/06/2023 Debounce is support when nodes are created by `Enter` or `Tab`
 - 07/05/2023 Fix the first time you enter the editor canvas instance may be undefined

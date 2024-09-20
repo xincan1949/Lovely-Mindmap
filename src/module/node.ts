@@ -1,6 +1,6 @@
-import {uuid, debounce} from '../tool'
+import { uuid, debounce } from '../tool'
 import LovelyMindmap from '../main'
-import {KeymapContext} from 'obsidian'
+import { KeymapContext } from 'obsidian'
 import autobind from 'autobind-decorator'
 
 
@@ -76,16 +76,21 @@ class Node {
       height,
     } = selection
 
+
     // node with from and to attrs we called `Edge`
     // node without from and to but has x,y,width,height attrs we called `Node`
     const rightSideNodeFilter = (node: M.Edge) => node?.to?.side === 'left' && selection.id !== node?.to?.node?.id
+
 
     const sibNodes = this.main.canvas
       .getEdgesForNode(selection)
       .filter(rightSideNodeFilter)
       .map((node: M.Edge) => node.to.node)
+    
 
-    const nextNodeY = Math.max(...sibNodes.map((node: M.Node) => node.y)) + this.main.setting.EPSILON
+    const nextNodeY = sibNodes.length > 0
+      ? Math.max(...sibNodes.map((node: M.Node) => node.y)) + this.main.setting.EPSILON
+      : y
 
     const childNode = this.main.canvas.createTextNode({
       pos: {
@@ -123,27 +128,34 @@ class Node {
   }
 
   @debounce()
-  createSibNode(_: unknown, context: KeymapContext) {
-    const selection = this.getNavigationNode()
-    if (!selection) return
+  createBeforeSibNode() {
+    this.createSibNodeHelper(true);
+  }
+
+  @debounce()
+  createAfterSibNode() {
+    this.createSibNodeHelper(false);
+  }
+
+  private createSibNodeHelper(isBefore: boolean) {
+    const selection = this.getNavigationNode();
+    if (!selection) return;
 
     const {
       x,
       y,
       width,
       height,
-    } = selection
-    const { EPSILON } = this.main.setting
+    } = selection;
+    const { EPSILON } = this.main.setting;
 
-    const isPressedShift = context.modifiers === 'Shift'
-
-    const fromNode = this.main.node.getFromNodes(selection)[0]
-    const toNodes = this.main.node.getToNodes(fromNode)
+    const fromNode = this.getFromNodes(selection)[0];
+    const toNodes = this.getToNodes(fromNode);
 
     const willInsertedNode = this.main.canvas.createTextNode({
       pos: {
         x: x,
-        y: isPressedShift ? y - EPSILON : y + EPSILON,
+        y: isBefore ? y - EPSILON : y + EPSILON,
       },
       size: {
         height,
@@ -152,9 +164,9 @@ class Node {
       text: '',
       focus: false,
       save: true,
-    })
+    });
 
-    const data = this.main.canvas.getData()
+    const data = this.main.canvas.getData();
 
     this.main.canvas.importData({
       'edges': [
@@ -168,11 +180,10 @@ class Node {
         }
       ],
       'nodes': data.nodes,
-    })
+    });
 
-
-    this.main.layout.useSide(fromNode, toNodes.concat(willInsertedNode))
-    this.main.view.zoomToNode(willInsertedNode)
+    this.main.layout.useSide(fromNode, toNodes.concat(willInsertedNode));
+    this.main.view.zoomToNode(willInsertedNode);
   }
 }
 

@@ -77,4 +77,5 @@ declare namespace M {
     [key: string]: any
   }
 
+  type NodeActionName = 'Focus' | 'CreateBeforeSib' | 'CreateAfterSib' | 'CreateChild' | 'ArrowUp' | 'ArrowDown' | 'ArrowLeft' | 'ArrowRight'
 }

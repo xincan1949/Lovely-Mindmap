@@ -1,3 +1,6 @@
+import { Modifier } from "obsidian"
+
+
 function debounce(delay: number = 100): MethodDecorator {
   let lastTime = 0
   let timer: NodeJS.Timeout
@@ -90,4 +93,53 @@ function string10To64(str: number | string) {
   return res.join('')
 }
 
-export { debounce, calcDistance, findClosestNodeByBbox, uuid }
+const supportedModifiers = ['mod', 'ctrl', 'meta', 'shift', 'alt']
+const navigationKeys = ['tab', 'enter', 'arrowup', 'arrowdown', 'arrowleft', 'arrowright', /** 'backspace', 'delete', 'escape', 'space' */]
+
+/** 
+ * Converts a hotkey string into an array of modifiers and a key.
+ *
+ * The hotkey string is expected to contain either a single alphanumeric character,
+ * or one or more modifiers followed by '+' and an alphanumeric character.
+ *
+ * @param hotkey - The hotkey string to be converted.
+ *                 Example formats:
+ *                 - 'A'
+ *                 - 'Ctrl+A'
+ *                 - 'Ctrl+Shift+A'
+ * @returns A tuple where the first element is an array of modifier strings,
+ *          and the second element is the main key string.
+ * @throws Error if the hotkey format is invalid.
+ */
+function convertHotkey2Array(hotkey: string): [Modifier[], string] {
+  const parts = hotkey.split('+');
+  let modifier: Modifier | null = null
+  let key: string | null = null
+
+  if (parts.length === 1) {
+    key = parts[0].trim()
+    if (!navigationKeys.includes(key.toLocaleLowerCase()) && !/^[a-zA-Z0-9]$/.test(key)) {
+      throw new Error('Invalid key. Expected a single alphanumeric character or a navigation key but got ' + key);
+    }
+    return [[], key]
+  } else if (parts.length === 2) {
+    modifier = parts[0].trim() as Modifier
+    if (!supportedModifiers.includes(modifier.toLocaleLowerCase())) {
+      throw new Error(`Invalid modifier. Expected [${supportedModifiers.join(', ')}].`);
+    }
+    key = parts[1].trim()
+    if (!navigationKeys.includes(key.toLocaleLowerCase()) && !/^[a-zA-Z0-9]$/.test(key)) {
+      throw new Error('Invalid key. Expected a single alphanumeric character or a navigation key but got ' + key);
+    }
+    // @ts-ignore
+    return [[modifier.charAt(0).toUpperCase() + modifier.slice(1)], key]
+  }
+
+  throw new Error('Invalid hotkey format. Expected a single alphanumeric character or a modifier followed by a single alphanumeric character but got ' + hotkey);
+}
+
+function convertHotkey2String(hotkey: [Modifier[], string]): string {
+  return hotkey.join('+')
+}
+
+export { debounce, calcDistance, findClosestNodeByBbox, uuid, convertHotkey2Array, convertHotkey2String }
