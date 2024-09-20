@@ -10,8 +10,6 @@ export default class LovelyMindmap extends Plugin{
   view: View
   setting: Setting
   layout: Layout
-  // todo: move to setting
-  config: Record<keyof Setting, any>
 
   constructor(app: App, manifest: PluginManifest) {
     super(app, manifest)

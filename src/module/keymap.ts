@@ -1,8 +1,8 @@
-import {KeymapContext, KeymapEventHandler, KeymapEventListener, Modifier} from 'obsidian'
-import {Node} from './node'
+import { KeymapContext, KeymapEventHandler, KeymapEventListener, Modifier } from 'obsidian'
+import { Node } from './node'
 import LovelyMindmap from '../main'
 import autobind from 'autobind-decorator'
-import {debounce} from '../tool'
+import { convertHotkey2Array, debounce } from '../tool'
 
 
 /**
@@ -23,15 +23,15 @@ class Keymap {
   async help() {
     if (this.main.view.isCreating()) return
 
-    console.log('this:\n', this)
-    console.log('app:\n', this.main.app)
-    console.log('canvas:\n', this.main.canvas)
-    console.log('selections:\n', this.main.canvas.selection.values().next())
+    console.debug('this:\n', this)
+    console.debug('app:\n', this.main.app)
+    console.debug('canvas:\n', this.main.canvas)
+    console.debug('selections:\n', this.main.canvas.selection.values().next())
   }
 
   nodeNavigation(_: unknown, context: KeymapContext) {
     type Key = 'ArrowUp' | 'ArrowDown' | 'ArrowLeft' | 'ArrowRight'
-    const {key} = context as Omit<KeymapContext, 'key'> & { key: Key }
+    const { key } = context as Omit<KeymapContext, 'key'> & { key: Key }
 
     const selection = this.node.getSingleSelection()
     if (!selection || selection.isEditing) {
@@ -39,7 +39,7 @@ class Keymap {
       // notice.setMessage('Press `cmd + Esc` to exit creating view')
       return
     }
-    const {OFFSET_WEIGHT} = this.main.setting
+    const { OFFSET_WEIGHT } = this.main.setting
 
     const data = this.main.canvas.getViewportNodes()
 
@@ -111,25 +111,42 @@ class Keymap {
   }
 
   register(
-    modifiers: Modifier[],
+    modifiers: any[],
     key: string | null,
     func: KeymapEventListener
   ): KeymapEventHandler {
     return this.main.app.scope.register(modifiers, key, func)
   }
 
-  registerAll() {
-    this.hotkeys.push(
-      this.register([], 'f', this.focusNode),
-      this.register([], 'Tab', this.main.node.createChildren),
-      this.register([], 'enter', this.main.node.createSibNode),
-      this.register(['Shift'], 'enter', this.main.node.createSibNode),
-      this.register(['Alt'], 'arrowLeft', this.nodeNavigation),
-      this.register(['Alt'], 'arrowRight', this.nodeNavigation),
-      this.register(['Alt'], 'arrowUp', this.nodeNavigation),
-      this.register(['Alt'], 'arrowDown', this.nodeNavigation),
-      // this.register([], 'h', this.help)
-    )
+  /**
+   * priority: options > config > default
+   * 1. options: function argument
+   * 2. config: `options.hotkeys`
+   * 3. default: this.register
+   * @param options 
+   */
+  registerAll(options?: {
+    [key in M.NodeActionName]?: () => KeymapEventHandler
+  }) {
+    const { hotkeys } = this.main.setting
+
+    const registerHotkey = (action: M.NodeActionName, callback: KeymapEventListener) => {
+      if (options?.[action]) {
+        this.hotkeys.push(options[action]());
+      } else {
+        const [modifier, key] = convertHotkey2Array(hotkeys[action]);
+        this.hotkeys.push(this.register(modifier, key, callback));
+      }
+    };
+
+    registerHotkey('Focus', this.focusNode);
+    registerHotkey('CreateChild', this.main.node.createChildren);
+    registerHotkey('CreateBeforeSib', this.main.node.createBeforeSibNode);
+    registerHotkey('CreateAfterSib', this.main.node.createAfterSibNode);
+    registerHotkey('ArrowLeft', this.nodeNavigation);
+    registerHotkey('ArrowRight', this.nodeNavigation);
+    registerHotkey('ArrowUp', this.nodeNavigation);
+    registerHotkey('ArrowDown', this.nodeNavigation);
   }
 
   unregisterAll() {
@@ -137,4 +154,4 @@ class Keymap {
   }
 }
 
-export {Keymap}
+export { Keymap }
